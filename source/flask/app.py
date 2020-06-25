@@ -67,6 +67,7 @@ def setupmethod(f):
     return update_wrapper(wrapper_func, f)
 
 
+# 继承类_PackageBoundObject中get_root_path函数自动计算应用的根路径
 class Flask(_PackageBoundObject):
     """The flask object implements a WSGI application and acts as the central
     object.  It is passed the name of the module or package of the
@@ -88,15 +89,15 @@ class Flask(_PackageBoundObject):
 
     .. admonition:: About the First Parameter
 
-        The idea of the first parameter is to give Flask an idea of what
-        belongs to your application.  This name is used to find resources
-        on the filesystem, can be used by extensions to improve debugging
-        information and a lot more.
+        The idea of the first parameter is to give Flask an idea of what belongs to your application.  
+        This name is used to find resources on the filesystem, 
+        can be used by extensions to improve debugging information and a lot more.
+        这个名称是用来寻找文件系统上的资源，可以通过扩展用来改善调试信息或者更多内容
 
-        So it's important what you provide there.  If you are using a single
-        module, `__name__` is always the correct value.  If you however are
-        using a package, it's usually recommended to hardcode the name of
-        your package there.
+        So it's important what you provide there.  
+        If you are using a single module, `__name__` is always the correct value.  
+        如果你只使用一个单独的模块，那么__name__永远是正确的值
+        If you however are using a package, it's usually recommended to hardcode the name of your package there.
 
         For example if your application is defined in :file:`yourapplication/app.py`
         you should create it with one of the two versions below::
@@ -133,7 +134,8 @@ class Flask(_PackageBoundObject):
        matching needs to be enabled manually now. Setting
        :data:`SERVER_NAME` does not implicitly enable it.
 
-    :param import_name: the name of the application package
+    :param import_name: the name of the application package # 应用程序包的名称
+
     :param static_url_path: can be used to specify a different path for the
                             static files on the web.  Defaults to the name
                             of the `static_folder` folder.
@@ -160,7 +162,7 @@ class Flask(_PackageBoundObject):
                                      be relative to the instance path instead
                                      of the application root.
     :param root_path: Flask by default will automatically calculate the path
-                      to the root of the application.  In certain situations
+                      to the root of the application.（应用程序的根目录）  In certain situations
                       this cannot be achieved (for instance if the package
                       is a Python 3 namespace package) and needs to be
                       manually defined.
@@ -363,6 +365,7 @@ class Flask(_PackageBoundObject):
         instance_relative_config=False,
         root_path=None
     ):
+        # 执行父类中的__init__方法，获取包的绝对路径
         _PackageBoundObject.__init__(
             self,
             import_name,
@@ -394,22 +397,25 @@ class Flask(_PackageBoundObject):
         #: to load a config from files.
         self.config = self.make_config(instance_relative_config)
 
-        #: A dictionary of all view functions registered.  The keys will
-        #: be function names which are also used to generate URLs and
-        #: the values are the function objects themselves.
+        #: A dictionary of all view functions registered.  
+        #: 这个字典中保存的是所有已经注册过的视图函数
+        #: The keys will be function names which are also used to generate URLs and the values are the function objects themselves.
+        #: 键是函数名称可以用来生成URLs，值是函数对象本身
         #: To register a view function, use the :meth:`route` decorator.
+        #: 使用route装饰器来注册一个视图函数
         self.view_functions = {}
 
-        #: A dictionary of all registered error handlers.  The key is ``None``
-        #: for error handlers active on the application, otherwise the key is
-        #: the name of the blueprint.  Each key points to another dictionary
-        #: where the key is the status code of the http exception.  The
-        #: special key ``None`` points to a list of tuples where the first item
+        #: A dictionary of all registered error handlers.
+        #：这个字典用来存储已经注册的错误处理函数
+        #: The key is ``None``for error handlers active on the application, otherwise the key is the name of the blueprint.
+        #: Each key points to another dictionary where the key is the status code of the http exception.
+        #:   
+        #: The special key ``None`` points to a list of tuples where the first item
         #: is the class for the instance check and the second the error handler
         #: function.
         #:
-        #: To register an error handler, use the :meth:`errorhandler`
-        #: decorator.
+        #: To register an error handler, use the :meth:`errorhandler` decorator.
+        #: 使用errorhandler装饰器来注册一个错误处理函数
         self.error_handler_spec = {}
 
         #: A list of functions that are called when :meth:`url_for` raises a
@@ -421,24 +427,24 @@ class Flask(_PackageBoundObject):
         #: .. versionadded:: 0.9
         self.url_build_error_handlers = []
 
-        #: A dictionary with lists of functions that will be called at the
-        #: beginning of each request. The key of the dictionary is the name of
-        #: the blueprint this function is active for, or ``None`` for all
-        #: requests. To register a function, use the :meth:`before_request`
-        #: decorator.
+        #: A dictionary with lists of functions that will be called at the beginning of each request.
+        #: 这个字典中列出的函数将在每个请求之前被调用
+        #: The key of the dictionary is the name of the blueprint this function is active for, or ``None`` for all
+        #: requests. To register a function, use the :meth:`before_request` decorator.
+        #: 
         self.before_request_funcs = {}
 
-        #: A list of functions that will be called at the beginning of the
-        #: first request to this instance. To register a function, use the
+        #: A list of functions that will be called at the beginning of the first request to this instance.
+        #:  To register a function, use the
         #: :meth:`before_first_request` decorator.
         #:
         #: .. versionadded:: 0.8
         self.before_first_request_funcs = []
 
-        #: A dictionary with lists of functions that should be called after
-        #: each request.  The key of the dictionary is the name of the blueprint
-        #: this function is active for, ``None`` for all requests.  This can for
-        #: example be used to close database connections. To register a function
+        #: A dictionary with lists of functions that should be called after each request.
+        #: 这个字典中列出的函数将在每个请求之后被调用
+        #: The key of the dictionary is the name of the blueprint this function is active for, ``None`` for all requests.  
+        #: This can for example be used to close database connections. To register a function
         #: here, use the :meth:`after_request` decorator.
         self.after_request_funcs = {}
 
@@ -523,10 +529,10 @@ class Flask(_PackageBoundObject):
         #: .. versionadded:: 0.7
         self.extensions = {}
 
-        #: The :class:`~werkzeug.routing.Map` for this instance.  You can use
-        #: this to change the routing converters after the class was created
-        #: but before any routes are connected.  Example::
-        #:
+        #: The :class:`~werkzeug.routing.Map` for this instance.  
+        #: You can use this to change the routing converters after the class was created but before any routes are connected.
+        #:  你能使用这个改变路由转换器，需要在任何路由连接之前在类创建之后
+        #:  Example::
         #:    from werkzeug.routing import BaseConverter
         #:
         #:    class ListConverter(BaseConverter):
@@ -538,6 +544,7 @@ class Flask(_PackageBoundObject):
         #:
         #:    app = Flask(__name__)
         #:    app.url_map.converters['list'] = ListConverter
+        #: 保存url到视图函数的映射，即保存app.route()这个装饰器的信息
         self.url_map = Map()
 
         self.url_map.host_matching = host_matching
@@ -572,11 +579,10 @@ class Flask(_PackageBoundObject):
 
     @locked_cached_property
     def name(self):
-        """The name of the application.  This is usually the import name
-        with the difference that it's guessed from the run file if the
-        import name is main.  This name is used as a display name when
-        Flask needs the name of the application.  It can be set and overridden
-        to change the value.
+        """The name of the application.  
+        This is usually the import name with the difference that it's guessed from the run file if the import name is main.  
+        This name is used as a display name when Flask needs the name of the application.  
+        It can be set and overridden to change the value.
 
         .. versionadded:: 0.8
         """
@@ -843,9 +849,12 @@ class Flask(_PackageBoundObject):
     def run(self, host=None, port=None, debug=None,
             load_dotenv=True, **options):
         """Runs the application on a local development server.
+        在本地开发服务器运行这个应用
+        Do not use ``run()`` in a production setting. 
+        不能使用run()在生产环境
+        It is not intended to meet security and performance requirements for a production server.
+        它满足不了，生产服务器的安全和性能要求
 
-        Do not use ``run()`` in a production setting. It is not intended to
-        meet security and performance requirements for a production server.
         Instead, see :ref:`deployment` for WSGI server recommendations.
 
         If the :attr:`debug` flag is set the server will automatically reload
@@ -862,8 +871,8 @@ class Flask(_PackageBoundObject):
 
         .. admonition:: Keep in Mind
 
-           Flask will suppress any server error with a generic error page
-           unless it is in debug mode.  As such to enable just the
+           Flask will suppress any server error with a generic error page unless it is in debug mode.  
+           As such to enable just the
            interactive debugger without the code reloading, you have to
            invoke :meth:`run` with ``debug=True`` and ``use_reloader=False``.
            Setting ``use_debugger`` to ``True`` without being in debug mode
@@ -1223,7 +1232,7 @@ class Flask(_PackageBoundObject):
 
     def route(self, rule, **options):
         """A decorator that is used to register a view function for a
-        given URL rule.  This does the same thing as :meth:`add_url_rule`
+        given URL rule（这个装饰器被用来使用给定的url规则注册一个视图函数 ）.  This does the same thing as :meth:`add_url_rule`
         but is intended for decorator usage::
 
             @app.route('/')
@@ -2262,7 +2271,9 @@ class Flask(_PackageBoundObject):
     def wsgi_app(self, environ, start_response):
         """The actual WSGI application. This is not implemented in
         :meth:`__call__` so that middlewares can be applied without
-        losing a reference to the app object. Instead of doing this::
+        losing a reference to the app object. 
+        这在: meth: ‘call’中没有实现，因此中间件可以应用而不会丢失对 app 对象的引用。
+        Instead of doing this::
 
             app = MyMiddleware(app)
 
@@ -2303,8 +2314,9 @@ class Flask(_PackageBoundObject):
             ctx.auto_pop(error)
 
     def __call__(self, environ, start_response):
-        """The WSGI server calls the Flask application object as the
-        WSGI application. This calls :meth:`wsgi_app` which can be
+        """The WSGI server calls the Flask application object as the WSGI application. 
+        Wsgi 服务器将 Flask 应用程序对象调用为 WSGI 应用程序
+        This calls :meth:`wsgi_app` which can be
         wrapped to applying middleware."""
         return self.wsgi_app(environ, start_response)
 

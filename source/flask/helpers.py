@@ -714,8 +714,8 @@ def send_from_directory(directory, filename, **options):
 
 
 def get_root_path(import_name):
-    """Returns the path to a package or cwd if that cannot be found.  This
-    returns the path of a package or the folder that contains a module.
+    """Returns the path to a package or cwd if that cannot be found.  
+    This returns the path of a package or the folder that contains a module.
 
     Not to be confused with the package path returned by :func:`find_package`.
     """
@@ -872,8 +872,10 @@ class _PackageBoundObject(object):
     #: ``None`` if templates should not be added.
     template_folder = None
 
-    #: Absolute path to the package on the filesystem. Used to look up
-    #: resources contained in the package.
+    #: Absolute path to the package on the filesystem. 
+    #: 这个包在文件系统的绝对路径
+    #: Used to look up resources contained in the package.
+    #: 用于查找包中包含的资源
     root_path = None
 
     def __init__(self, import_name, template_folder=None, root_path=None):
