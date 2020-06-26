@@ -1809,9 +1809,8 @@ class Flask(_PackageBoundObject):
 
     def full_dispatch_request(self):
         """Dispatches the request and on top of that performs request
-        pre and postprocessing as well as HTTP exception catching and
-        error handling.
-
+        pre and postprocessing as well as HTTP exception catching and error handling.
+        调度请求，并在此基础上执行请求预处理和后处理，以及 HTTP 异常捕获和错误处理。
         .. versionadded:: 0.7
         """
         self.try_trigger_before_first_request_functions()

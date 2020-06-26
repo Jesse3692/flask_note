@@ -1,5 +1,7 @@
 # flask学习笔记
 
+> 基于Flask 1.0.2
+
 ## 1. 基础用法
 
 ### 最小实例hello world
@@ -244,8 +246,57 @@ def wsgi_app(self, environ, start_response):
             if self.should_ignore_error(error):
                 error = None
             ctx.auto_pop(error)
-
 ```
+
+`wsgi_app`是flask的核心，它的作用就是先调用所有的预处理函数，然后分发请求，再处理可能的异常，最后返回response。
+
+这里看一下`dispatch_request`的实现逻辑，它主要进行请求的分发
+
+```python
+    def dispatch_request(self):
+        """Does the request dispatching.  Matches the URL and returns the
+        return value of the view or error handler.  This does not have to
+        be a response object.  In order to convert the return value to a
+        proper response object, call :func:`make_response`.
+
+        .. versionchanged:: 0.7
+           This no longer does the exception handling, this code was
+           moved to the new :meth:`full_dispatch_request`.
+        """
+        req = _request_ctx_stack.top.request
+        if req.routing_exception is not None:
+            self.raise_routing_exception(req)
+        rule = req.url_rule
+        # if we provide automatic options for this URL and the
+        # request came with the OPTIONS method, reply automatically
+        if getattr(rule, 'provide_automatic_options', False) \
+           and req.method == 'OPTIONS':
+            return self.make_default_options_response()
+        # otherwise dispatch to the handler for that endpoint
+        return self.view_functions[rule.endpoint](**req.view_args)
+```
+
+这里是对异常的处理
+
+```python
+def full_dispatch_request(self):
+        """Dispatches the request and on top of that performs request
+        pre and postprocessing as well as HTTP exception catching and error handling.
+        调度请求，并在此基础上执行请求预处理和后处理，以及 HTTP 异常捕获和错误处理。
+        .. versionadded:: 0.7
+        """
+        self.try_trigger_before_first_request_functions()
+        try:
+            request_started.send(self)
+            rv = self.preprocess_request()
+            if rv is None:
+                rv = self.dispatch_request()
+        except Exception as e:
+            rv = self.handle_user_exception(e)
+        return self.finalize_request(rv)
+```
+
+
 
 ```python
 # https://github.com/Jesse3692/flask_note/blob/4c05ffebc83f2c4070e920e3d06b23157ed20c7c/source/werkzeug/serving.py
