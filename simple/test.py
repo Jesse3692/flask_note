@@ -1,5 +1,6 @@
 import sys
 
+
 class Foo:
     def __call__(self):
         print(self, 'hello')
